@@ -33,12 +33,12 @@ def add_product():
             quantity = request.form.get('quantity', '').strip()
             category_id = request.form.get('category', '').strip()
 
-            # ✅ Ensure all fields are filled
+            #   all fields are filled
             if not all([product_id, name, price, quantity, category_id]):
                 flash("All fields are required.", "warning")
                 return redirect(url_for('add_product'))
 
-            # ✅ Validate data types
+            #  Validate data and types
             try:
                 price = float(price)
                 quantity = int(quantity)
@@ -47,7 +47,7 @@ def add_product():
                 flash("Invalid data format. Check your inputs.", "danger")
                 return redirect(url_for('add_product'))
 
-            # ✅ Check for duplicate product ID
+            #  Check for duplicate ids
             existing_product = Product.query.get(product_id)
             if existing_product:
                 flash("Product ID already exists.", "warning")
@@ -85,7 +85,7 @@ def add_product():
     return render_template('add_product.html', categories=categories)
 
 
-# ✅ Update Product Route
+#  Update Product Route
 @app.route('/update_product/<string:product_id>', methods=['GET', 'POST'])
 def update_product(product_id):
     """Update an existing product"""
@@ -110,7 +110,7 @@ def update_product(product_id):
     return render_template('update_product.html', product=product, categories=categories)
 
 
-# ✅ Delete Product Route
+#  Delete Product Route
 @app.route('/delete_product/<string:product_id>', methods=['POST'])
 def delete_product(product_id):
     """Delete a product"""
@@ -127,7 +127,7 @@ def delete_product(product_id):
     return redirect(url_for('index'))
 
 
-# ✅ Add Category Route
+#  Add Category Route
 @app.route('/categories', methods=['GET'])
 def list_categories():
     """Display all categories"""
