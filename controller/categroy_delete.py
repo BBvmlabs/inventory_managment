@@ -1,5 +1,5 @@
 from flask import redirect, url_for, flash
-from database.db import get_db_connection
+from models.db import get_db_connection
 
 def delete_category(category_id):
     """Deletes a category"""

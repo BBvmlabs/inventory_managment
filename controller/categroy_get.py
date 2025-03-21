@@ -1,5 +1,5 @@
 from flask import render_template
-from database.db import get_db_connection
+from models.db import get_db_connection
 
 def get_all_categories():
     """Retrieves all categories from the database"""

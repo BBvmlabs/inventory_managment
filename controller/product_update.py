@@ -1,5 +1,5 @@
 from flask import request, redirect, url_for, flash
-from database.db import get_db_connection
+from models.db import get_db_connection
 
 def update_product(product_id):
     """Updates an existing product"""

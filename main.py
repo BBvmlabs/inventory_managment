@@ -1,100 +1,225 @@
 from flask import Flask, render_template, request, redirect, url_for, flash
-from database.db import get_db_connection, init_db
-from controller.product_post import add_product
-from controller.product_get import get_all_products
-from controller.product_update import update_product
-from controller.product_delete import delete_product
-from controller.categroy_post import add_category
-from controller.categroy_get import get_all_categories
-from controller.categroy_update import update_category
-from controller.categroy_delete import delete_category
+from config import config
+from models import init_db, db
+from models.db import Product, Category
+from models.factory import ProductFactory, CategoryFactory
+from sqlalchemy.exc import IntegrityError
 
 app = Flask(__name__)
-app.secret_key = 'your_secret_key'  # For flash messages
+app.config.from_object(config['development'])
 
 # Initialize the database
-init_db()
+init_db(app)
 
 
-### --- ROUTES ---
-
-# Home Route
 @app.route('/')
 def index():
-    """Displays the home page with product and category management links"""
-    conn = get_db_connection()
-    
-    # Fetch products and categories for display
-    products = conn.execute('SELECT * FROM product').fetchall()
-    categories = conn.execute('SELECT * FROM category').fetchall()
-    
-    conn.close()
+    """Display all products"""
+    products = Product.query.all()
+    categories = Category.query.all()
     return render_template('index.html', products=products, categories=categories)
 
 
-### --- PRODUCT ROUTES ---
+@app.route('/add_product', methods=['GET', 'POST'])
+def add_product():
+    """Add new product"""
+    
+    if request.method == 'POST':
+        try:
+            # Retrieve form data
+            product_id = request.form.get('product_id', '').strip()
+            name = request.form.get('name', '').strip()
+            price = request.form.get('price', '').strip()
+            quantity = request.form.get('quantity', '').strip()
+            category_id = request.form.get('category', '').strip()
 
-# Route to display products
-@app.route('/products')
-def products():
-    """Displays the product management page"""
-    products = get_all_products()
-    categories = get_all_categories()
-    return render_template('product.html', products=products, categories=categories)
+            # ✅ Ensure all fields are filled
+            if not all([product_id, name, price, quantity, category_id]):
+                flash("All fields are required.", "warning")
+                return redirect(url_for('add_product'))
+
+            # ✅ Validate data types
+            try:
+                price = float(price)
+                quantity = int(quantity)
+                category_id = int(category_id)
+            except ValueError:
+                flash("Invalid data format. Check your inputs.", "danger")
+                return redirect(url_for('add_product'))
+
+            # ✅ Check for duplicate product ID
+            existing_product = Product.query.get(product_id)
+            if existing_product:
+                flash("Product ID already exists.", "warning")
+                return redirect(url_for('add_product'))
+
+            # Use factory pattern to create product
+            product = ProductFactory.create_product(
+                product_id, name, price, quantity, category_id
+            )
+
+            # Save to database
+            new_product = Product(
+                product_id=product.get_product_id(),
+                name=product.get_name(),
+                price=product.get_price(),
+                quantity=product.get_quantity(),
+                category_id=product.get_category_id()
+            )
+
+            db.session.add(new_product)
+            db.session.commit()
+            
+            flash('Product added successfully!', 'success')
+            return redirect(url_for('index'))
+
+        except IntegrityError:
+            db.session.rollback()
+            flash("Product ID already exists.", "danger")
+
+        except Exception as e:
+            db.session.rollback()
+            flash(f'Error: {str(e)}', 'danger')
+
+    categories = Category.query.all()
+    return render_template('add_product.html', categories=categories)
 
 
-# Route to add a new product
-@app.route('/add_product', methods=['POST'])
-def add_product_route():
-    """Handles adding a new product"""
-    return add_product()
+# ✅ Update Product Route
+@app.route('/update_product/<string:product_id>', methods=['GET', 'POST'])
+def update_product(product_id):
+    """Update an existing product"""
+    product = Product.query.get_or_404(product_id)
+
+    if request.method == 'POST':
+        try:
+            product.name = request.form['name'].strip()
+            product.price = float(request.form['price'].strip())
+            product.quantity = int(request.form['quantity'].strip())
+            product.category_id = int(request.form['category'].strip())
+
+            db.session.commit()
+            flash('Product updated successfully!', 'success')
+        except Exception as e:
+            db.session.rollback()
+            flash(f'Error: {str(e)}', 'danger')
+
+        return redirect(url_for('index'))
+
+    categories = Category.query.all()
+    return render_template('update_product.html', product=product, categories=categories)
 
 
-# Route to update product details
-@app.route('/update_product/<string:product_id>', methods=['POST'])
-def update_product_route(product_id):
-    """Handles updating a product by ID"""
-    return update_product(product_id)
-
-
-# Route to delete a product
+# ✅ Delete Product Route
 @app.route('/delete_product/<string:product_id>', methods=['POST'])
-def delete_product_route(product_id):
-    """Handles deleting a product by ID"""
-    return delete_product(product_id)
+def delete_product(product_id):
+    """Delete a product"""
+    product = Product.query.get_or_404(product_id)
+
+    try:
+        db.session.delete(product)
+        db.session.commit()
+        flash('Product deleted successfully!', 'success')
+    except Exception as e:
+        db.session.rollback()
+        flash(f'Error: {str(e)}', 'danger')
+
+    return redirect(url_for('index'))
 
 
-### --- CATEGORY ROUTES ---
-
-# Route to display categories
-@app.route('/categories')
-def categories():
-    """Displays the category management page"""
-    categories = get_all_categories()
+# ✅ Add Category Route
+@app.route('/categories', methods=['GET'])
+def list_categories():
+    """Display all categories"""
+    categories = Category.query.all()  # Fetch all categories
     return render_template('category.html', categories=categories)
 
+# Route: Add Category with Duplicate Check
+@app.route('/add_category', methods=['GET', 'POST'])
+def add_category():
+    """Add new category"""
+    if request.method == 'POST':
+        try:
+            name = request.form['name'].strip()
+            description = request.form['description'].strip()
 
-# Route to add a new category
-@app.route('/add_category', methods=['POST'])
-def add_category_route():
-    """Handles adding a new category"""
-    return add_category()
+            # Check for duplicate name
+            existing_category = Category.query.filter_by(name=name).first()
+            
+            if existing_category:
+                flash('Category name already exists!', 'warning')
+                return redirect(url_for('list_categories'))
 
+            # Add new category
+            new_category = Category(name=name, description=description)
+            db.session.add(new_category)
+            db.session.commit()
+            flash('Category added successfully!', 'success')
 
-# Route to update category details
-@app.route('/update_category/<int:category_id>', methods=['POST'])
-def update_category_route(category_id):
-    """Handles updating a category by ID"""
-    return update_category(category_id)
+        except Exception as e:
+            db.session.rollback()
+            flash(f'Error: {str(e)}', 'danger')
 
+        return redirect(url_for('list_categories'))
 
-# Route to delete a category
+    categories = Category.query.all()
+    return render_template('category.html', categories=categories)
+
+# Route: Update Category with Duplicate Check
+@app.route('/update_category/<int:category_id>', methods=['GET', 'POST'])
+def update_category(category_id):
+    """Update an existing category"""
+    category = Category.query.get_or_404(category_id)
+
+    if request.method == 'POST':
+        new_name = request.form['name'].strip()
+        new_description = request.form['description'].strip()
+
+        # Check for duplicate name (excluding the current category)
+        existing_category = Category.query.filter(
+            Category.name == new_name, 
+            Category.id != category_id
+        ).first()
+
+        if existing_category:
+            flash('Category name already exists!', 'warning')
+            return redirect(url_for('update_category', category_id=category_id))
+
+        try:
+            category.name = new_name
+            category.description = new_description
+
+            db.session.commit()
+            flash('Category updated successfully!', 'success')
+        
+        except Exception as e:
+            db.session.rollback()
+            flash(f'Error: {str(e)}', 'danger')
+
+        return redirect(url_for('list_categories'))
+
+    return render_template('update_category.html', category=category)
+
+# Route: Delete Category
 @app.route('/delete_category/<int:category_id>', methods=['POST'])
-def delete_category_route(category_id):
-    """Handles deleting a category by ID"""
-    return delete_category(category_id)
+def delete_category(category_id):
+    """Delete a category"""
+    category = Category.query.get_or_404(category_id)
+
+    try:
+        db.session.delete(category)
+        db.session.commit()
+        flash('Category deleted successfully!', 'success')
+    except Exception as e:
+        db.session.rollback()
+        flash(f'Error: {str(e)}', 'danger')
+
+    return redirect(url_for('list_categories'))
+
+# Create Database Tables
+with app.app_context():
+    db.create_all()
 
 
-### --- RUN APP ---
 if __name__ == '__main__':
     app.run(debug=True)
