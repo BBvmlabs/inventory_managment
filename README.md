@@ -41,7 +41,7 @@ source venv/bin/activate
 
 5. **Install Dependensies**
 ```
-pip install flask sqlalchemy
+pip install -r requiremnets.txt
 ```
 
 ---
