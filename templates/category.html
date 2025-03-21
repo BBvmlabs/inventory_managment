@@ -1,0 +1,124 @@
+{% extends "base.html" %}
+
+{% block title %}Categories{% endblock %}
+
+{% block content %}
+<div class="container">
+    <h2>Categories</h2>
+
+    <div class="search-container">
+        <input type="text" placeholder="Search Category" class="search-input">
+        <button class="search-btn">🔍</button>
+    </div>
+
+    <div class="add-category">
+        <form method="POST">
+            <label>Category Name:</label>
+            <input type="text" name="name" required>
+
+            <label>Description:</label>
+            <textarea name="description" required></textarea>
+
+            <button type="submit" class="btn btn-success">Add Category</button>
+        </form>
+    </div>
+
+    <table class="table">
+        <thead>
+            <tr>
+                <th>S No</th>
+                <th>Name</th>
+                <th>Description</th>
+                <th>Actions</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for category in categories %}
+            <tr>
+                <td>{{ loop.index }}</td>
+                <td>{{ category.name }}</td>
+                <td>{{ category.description }}</td>
+                <td>
+                    <a href="{{ url_for('edit_category', id=category.id) }}" class="edit-btn">✏️</a>
+                    <a href="{{ url_for('delete_category', id=category.id) }}" class="delete-btn">🗑️</a>
+                </td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</div>
+
+<style>
+    .container {
+        padding: 20px;
+    }
+
+    .search-container {
+        display: flex;
+        align-items: center;
+        margin-bottom: 15px;
+    }
+
+    .search-input {
+        padding: 8px;
+        width: 300px;
+    }
+
+    .search-btn {
+        background-color: green;
+        color: white;
+        border: none;
+        padding: 8px 12px;
+        cursor: pointer;
+    }
+
+    .add-category form {
+        display: flex;
+        flex-direction: column;
+        gap: 15px;
+    }
+
+    label {
+        font-weight: bold;
+    }
+
+    input, textarea {
+        padding: 8px;
+        width: 100%;
+    }
+
+    .btn-success {
+        background-color: #28a745;
+        color: white;
+        padding: 10px 20px;
+        border: none;
+        cursor: pointer;
+    }
+
+    .btn-success:hover {
+        background-color: #218838;
+    }
+
+    .table {
+        width: 100%;
+        border-collapse: collapse;
+        margin-top: 20px;
+    }
+
+    .table th, .table td {
+        border: 1px solid #ddd;
+        padding: 8px;
+        text-align: left;
+    }
+
+    .edit-btn, .delete-btn {
+        text-decoration: none;
+        font-size: 18px;
+        margin-right: 10px;
+    }
+
+    .delete-btn {
+        color: red;
+    }
+</style>
+{% endblock %}
