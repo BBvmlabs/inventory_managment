@@ -1,35 +1,33 @@
-# 🛒 **Invetory Managment Systm**
+# 🛒 **Inventory Management System**
 
-This is a simple **Flask** based project for managin categories in an inventroy system. You can **add, update, and delet** categories using a CRUD interface. The project uses **SQLite** as the database and has a simple web-based UI.
+This is a simple **Flask**-based project for managing categories in an inventory system. You can **add, update, and delete** categories using a CRUD interface. The project uses **SQLite** as the database and has a simple web-based UI.
 
 ---
 
-## **Technlogies Used**
+## **Technologies Used**
 - **Flask**
-- **SQLAlchemy** 
-
-
+- **SQLAlchemy**
 
 ---
 
-## **Instalation Instrutions**
+## **Installation Instructions**
 
-1. **Clon the Repo**
+1. **Clone the Repo**
 ```
-git cloe https://github.com/yourusername/inventory-management.git
-```
-
-2. **Navagate into the project folder**
-```
-cd inventory-managment
+git clone https://github.com/yourusername/inventory-management.git
 ```
 
-3. **Create Virtual Enviroment**
+2. **Navigate into the project folder**
+```
+cd inventory-management
+```
+
+3. **Create a Virtual Environment**
 ```
 python -m venv venv
 ```
 
-4. **Activate Enviroment**
+4. **Activate the Environment**
 - On Windows:
 ```
 venv\Scripts\activate
@@ -39,31 +37,33 @@ venv\Scripts\activate
 source venv/bin/activate
 ```
 
-5. **Install Dependensies**
+5. **Install Dependencies**
 ```
-pip install -r requiremnets.txt
+pip install -r requirements.txt
 ```
 
 ---
 
-## **How to Ruin the App**
+## **How to Run the App**
 
-1. **Make sure you have activated the enviroment**
+1. **Make sure you have activated the environment.**
 2. **Run the Flask server**
 ```
 python main.py
 ```
 3. Open your browser and visit:
 ```
-http://127.0.0.1:5000/categories
+http://127.0.0.1:5000
 ```
 
 ---
 
-## **Featuers**
+## **Features**
 
-- Add new categries
-- Update existing catagories
-- Delete catagories
-- Avoid duplicat names with validation
-- Persistent data storage using SQLlit
+- Add new categories
+- Update existing categories
+- Delete categories
+- Avoid duplicate names with validation
+- Persistent data storage using SQLite
+
+---
