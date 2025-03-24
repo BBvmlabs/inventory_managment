@@ -1,7 +1,6 @@
 from models.product import Product
 from models.category import Category
 
-
 class ProductFactory:
     """Factory for creating products"""
 

@@ -1,6 +1,5 @@
 import pytest
 from main import app, db
-from models.db import Category, Product
 
 @pytest.fixture
 def client():

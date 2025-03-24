@@ -1,5 +1,5 @@
 import pytest
-from models.db import Category, Product, db
+from models.db import Category, Product
 
 # Use home route page
 def test_home_page(client):

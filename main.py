@@ -1,8 +1,8 @@
-from flask import Flask, render_template, request, redirect, url_for, flash
+from flask import Flask, render_template, request, redirect, url_for, flash,jsonify
 from config import config
 from models import init_db, db
 from models.db import Product, Category
-from models.factory import ProductFactory, CategoryFactory
+from models.factory import ProductFactory
 from sqlalchemy.exc import IntegrityError
 
 app = Flask(__name__)
@@ -201,7 +201,7 @@ def update_category(category_id):
     return render_template('update_category.html', category=category)
 
 # Route: Delete Category
-@app.route('/delete_category/<int:category_id>', methods=['POST'])
+@app.route('/delete_category/<int:category_id>', methods=['DELETE'])
 def delete_category(category_id):
     """Delete a category"""
     category = Category.query.get_or_404(category_id)
@@ -209,12 +209,16 @@ def delete_category(category_id):
     try:
         db.session.delete(category)
         db.session.commit()
-        flash('Category deleted successfully!', 'success')
+        return '', 204  # No content
+    except IntegrityError:
+        db.session.rollback()
+        return jsonify({'error': 'Cannot delete category due to related records.'}), 400
     except Exception as e:
         db.session.rollback()
-        flash(f'Error: {str(e)}', 'danger')
+        print(e)
+        return jsonify({'error': 'An unexpected error occurred.'}), 500
 
-    return redirect(url_for('list_categories'))
+
 
 # Create Database Tables
 with app.app_context():
