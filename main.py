@@ -154,7 +154,7 @@ def add_category():
             new_category = Category(name=name, description=description)
             db.session.add(new_category)
             db.session.commit()
-            flash('Category added successfully!', 'success')
+            # flash('Category added successfully!', 'success')
 
         except Exception as e:
             db.session.rollback()

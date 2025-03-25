@@ -70,7 +70,7 @@ form input, form select, form button {
 }
 
 form button {
-    background: #28a745;
+    background: #28a74600;
     color: #fff;
     border: none;
     cursor: pointer;
@@ -78,7 +78,7 @@ form button {
 }
 
 form button:hover {
-    background: #218838;
+    background: #fcfcfc00;
 }
 
 /* Table Styling */

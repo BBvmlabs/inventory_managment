@@ -61,25 +61,24 @@
           background-color: #c41010;
           border: 1px solid #c41010;
         ">
-        <button onclick="deleteCategory({{ category.id }})" class="btn-delete">Delete</button>
+        <button onclick="deleteCategory('{{ category.id }}')" class="btn-delete">Delete</button>
 
         <script>
             function deleteCategory(categoryId) {
-                if (!confirm('Are you sure you want to delete this category?')) {
-                    return;
-                }
-        
-                fetch(`/delete_category/${categoryId}`, {
-                    method: 'DELETE'
-                })
-                .then(response => {
-                    if (response.ok) {
-                        window.location.reload();
-                    } else {
-                        alert('Failed to delete the category.');
-                    }
-                })
-                .catch(error => console.error('Error:', error));
+          if (!confirm('Are you sure you want to delete this category?')) {
+              return;
+          }
+          fetch(`/delete_category/${categoryId}`, {
+              method: 'DELETE'
+          })
+          .then(response => {
+              if (response.ok) {
+            location.reload(); // Reload the page after the task is done
+              } else {
+            alert('Failed to delete the category.');
+              }
+          })
+          .catch(error => console.error('Error:', error));
             }
         </script>
           </div>
